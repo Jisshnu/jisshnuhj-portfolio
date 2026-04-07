@@ -2,6 +2,7 @@ import { useRef, useState, useCallback } from "react";
 import useTypewriter from "../hooks/useTypewriter";
 import useInView from "../hooks/useInView";
 import useCounter from "../hooks/useCounter";
+import ParticleCanvas from "./ParticleCanvas";
 import { ROLES } from "../data/data";
 
 function Hero() {
@@ -27,32 +28,38 @@ function Hero() {
     setTilt({ x: dy * 12, y: -dx * 12 });
   }, []);
 
-  return (
-    <section
-      id="hero"
-      ref={ref}
-      onMouseMove={handleMouse}
-      style={{
-        minHeight: "100vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        color: "white",
-      }}
-    >
-      <div>
-        <h1>Jisshnu Hemakumar Jayanthi</h1>
+return (
+  <section
+    id="hero"
+    ref={ref}
+    onMouseMove={handleMouse}
+    style={{
+      minHeight: "100vh",
+      display: "flex",
+      alignItems: "center",
+      position: "relative",
+      overflow: "hidden",
+      padding: "0 48px",
+      color: "white",
+    }}
+  >
+    <ParticleCanvas />
 
-        <p>
-          {">"} {role}
-        </p>
+    <div style={{ position: "relative", zIndex: 2 }}>
+      <h1 style={{ fontSize: "3rem", marginBottom: "10px" }}>
+        Jisshnu Hemakumar Jayanthi
+      </h1>
 
-        <p>
-          Internships: {i3} | Projects: {i2} | Grad: 20{i26}
-        </p>
-      </div>
-    </section>
-  );
+      <p style={{ color: "#00e5c3" }}>
+        {">"} {role}
+      </p>
+
+      <p style={{ marginTop: "10px" }}>
+        Internships: {i3} | Projects: {i2} | Grad: 20{i26}
+      </p>
+    </div>
+  </section>
+);
 }
 
 export default Hero;
