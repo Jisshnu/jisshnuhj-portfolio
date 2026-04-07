@@ -1,6 +1,6 @@
-const ROLES = ["Data Scientist", "ML Engineer", "Analytics Dev", "BI Specialist", "Data Storyteller"];
+export const ROLES = ["Data Scientist", "ML Engineer", "Analytics Dev", "BI Specialist", "Data Storyteller"];
 
-const EXPERIENCES = [
+export const EXPERIENCES = [
   {
     id: 0, company: "GP Outsourcing Asia", role: "Intern – TeaMWork Program",
     period: "Jun–Jul 2025", loc: "Malaysia 🇲🇾", color: "#ff6b9d", emoji: "🌏",
@@ -21,13 +21,13 @@ const EXPERIENCES = [
   },
 ];
 
-const EXTRAS = [
+export const EXTRAS = [
   { id: 0, emoji: "✈️", title: "NCC – National Cadet Corps", badge: "Outstanding NCC Cadet Award", color: "#00e5c3", desc: "Flew the Virus-SW80 aircraft at 10,000ft — the pinnacle of NCC service. Recognised with the prestigious Outstanding NCC Cadet award.", highlights: ["Virus-SW80 aircraft", "10,000ft altitude", "Outstanding Cadet Award"] },
   { id: 1, emoji: "🎓", title: "Peer Mentor – Faculty of IT", badge: "Monash University", color: "#ffb347", desc: "Guided new IT students through academic transitions, wellbeing check-ins, study skills and course planning. Built community via events and regular communication.", highlights: ["Academic transition", "Wellbeing check-ins", "Study skills & events"] },
   { id: 2, emoji: "🏛️", title: "Exec Committee – Student Council", badge: "SVCE, Chennai", color: "#ff6b9d", desc: "Managed budget approvals from college management, advocated for student issues with authorities, coordinated large-scale campus events.", highlights: ["Budget management", "Student advocacy", "Event coordination"] },
 ];
 
-const SKILLS = [
+export const SKILLS = [
   { name: "Python", cat: "Code", level: 90, color: "#00e5c3" },
   { name: "R", cat: "Code", level: 78, color: "#00e5c3" },
   { name: "SQL", cat: "Code", level: 82, color: "#00e5c3" },
