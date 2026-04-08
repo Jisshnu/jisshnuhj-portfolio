@@ -360,10 +360,45 @@ function Nav({ scrollY }) {
     </nav>
   );
 }
+function ImageCarousel() {
+  const images = [
+    "/images/profile1.jpg",
+    "/images/profile2.jpg",
+    "/images/profile3.jpg",
+    "/images/profile4.jpg",
+    "/images/profile5.jpg",
+  ];
 
+  const [index, setIndex] = useState(0);
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIndex(i => (i + 1) % images.length);
+    }, 2500);
+    return () => clearInterval(interval);
+  }, []);
 
-
+  return (
+    <div style={{
+      width: 320,
+      height: 420,
+      borderRadius: 20,
+      overflow: "hidden",
+      border: "1px solid rgba(255,255,255,0.08)",
+      background: "#141824"
+    }}>
+      <img
+        src={images[index]}
+        alt=""
+        style={{
+          width: "100%",
+          height: "100%",
+          objectFit: "cover"
+        }}
+      />
+    </div>
+  );
+}
 
 // ─── HERO ─────────────────────────────────────────────────────────────────────
 function Hero() {
@@ -387,46 +422,62 @@ function Hero() {
       <div style={{ position: "absolute", bottom: "10%", right: "5%", width: 400, height: 400, background: "radial-gradient(circle, rgba(167,139,250,0.04),transparent 70%)", pointerEvents: "none" }} />
 
       <div style={{ position: "relative", zIndex: 2, width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 48, paddingTop: 90, flexWrap: "wrap" }}>
-        <div style={{ width: "100%", margin: "0" }}>
-          <div style={{ display: "inline-flex", alignItems: "center", gap: 9, fontFamily: "monospace", fontSize: "0.7rem", color: "#00e5c3", border: "1px solid rgba(0,229,195,0.3)", borderRadius: 100, padding: "6px 14px", background: "rgba(0,229,195,0.07)", marginBottom: 24, animation: "tagpulse 3s ease infinite" }}>
-            <span style={{ width: 6, height: 6, background: "#00e5c3", borderRadius: "50%", animation: "tagpulse 2s ease infinite" }} />
-            Open to Full-Time Opportunities · Melbourne / Australia
-          </div>
-          <h1 style={{ fontSize: "clamp(3rem,7.5vw,6.8rem)", fontWeight: 800, lineHeight: 0.93, letterSpacing: "-0.03em", marginBottom: 18 }}>
-            <span style={{ display: "block", fontFamily: "Georgia, serif", fontStyle: "italic", fontWeight: 400, color: "#00e5c3", lineHeight: 1.05 }}>Jisshnu</span>
-            <span style={{ display: "block", color: "#e8eaf2" }}>Hemakumar</span>
-            <span style={{ display: "block", color: "#e8eaf2" }}>Jayanthi</span>
-          </h1>
-          <div style={{ display: "flex", alignItems: "center", gap: 6, fontFamily: "monospace", fontSize: "1rem", color: "#6b7491", marginBottom: 18, minHeight: "1.7em" }}>
-            <span style={{ color: "#00e5c3" }}>{">"}</span>
-            <span>{role}</span>
-            <span style={{ color: "#00e5c3", animation: "blink 1s infinite" }}>█</span>
-          </div>
-          <p style={{ fontSize: "0.97rem", fontFamily: "monospace", lineHeight: 1.82, color: "#6b7491", width: "100%", margin: "0", marginBottom: 36 }}>
-            Graduate Data Scientist at Monash!! developing ML models and data visualization dashboards, <span style={{ color: "#00e5c3" }}> seeking full-time Data Scientist or Analyst roles </span>, with a hobbyist interest in aviation ✈️
-          </p>
-          <div style={{ display: "flex", gap: 12, marginBottom: 52, flexWrap: "wrap" }}>
-            {[{ l: "View Projects →", h: "#projects", p: true }, { l: "LinkedIn ↗", h: "https://www.linkedin.com/in/jisshnuhj/", p: false }].map(({ l, h, p }) => (
-              <a key={l} href={h} target={h.startsWith("http") ? "_blank" : undefined} rel="noreferrer" style={{ padding: "13px 28px", borderRadius: 10, fontWeight: 700, fontSize: "0.88rem", letterSpacing: "0.04em", background: p ? "#00e5c3" : "rgba(255,255,255,0.04)", color: p ? "#080b12" : "#e8eaf2", border: p ? "none" : "1px solid rgba(255,255,255,0.08)", transition: "all 0.25s" }}
-                onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-3px)"; e.currentTarget.style.boxShadow = p ? "0 12px 28px rgba(0,229,195,0.3)" : "none"; if (!p) e.currentTarget.style.borderColor = "rgba(0,229,195,0.4)"; }}
-                onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "none"; if (!p) e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; }}>
-                {l}
-              </a>
-            ))}
-          </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(7, auto)",  gap: 36, alignItems: "center" }}>
-            {[{ n: `${i3} +`, l: "Industry Experiences" }, { n: `10 +`, l: "Hackathons & Events" }, { n: `50 +`, l: "Peers Mentored" }, { n: `20${i26}`, l: "MS Grad" }].map(({ n, l }, i) => (
-              <div key={l} style={{ display: "flex", alignItems: "center", gap: 36 }}>
-                {i > 0 && <div style={{ width: 1, height: 34, background: "rgba(255,255,255,0.08)" }} />}
-                <div>
-                  <div style={{ fontWeight: 800, fontSize: "1.9rem", letterSpacing: "-0.04em", color: "#e8eaf2", lineHeight: 1 }}>{n}</div>
-                  <div style={{ fontFamily: "monospace", fontSize: "0.62rem", color: "#3d4259", letterSpacing: "0.1em", textTransform: "uppercase", marginTop: 3 }}>{l}</div>
-                </div>
-              </div>
-            ))}
+      <div style={{ width: "100%", display: "grid", gridTemplateColumns: "1.2fr 0.8fr", gap: 40, alignItems: "center"}}>
+
+  {/* LEFT SIDE */}
+  <div>
+
+    <div style={{ display: "inline-flex", alignItems: "center", gap: 9, fontFamily: "monospace", fontSize: "0.7rem", color: "#00e5c3", border: "1px solid rgba(0,229,195,0.3)", borderRadius: 100, padding: "6px 14px", background: "rgba(0,229,195,0.07)", marginBottom: 24, animation: "tagpulse 3s ease infinite" }}>
+      <span style={{ width: 6, height: 6, background: "#00e5c3", borderRadius: "50%", animation: "tagpulse 2s ease infinite" }} />
+      Open to Full-Time Opportunities · Melbourne / Australia
+    </div>
+
+    <h1 style={{ fontSize: "clamp(3rem,7.5vw,6.8rem)", fontWeight: 800, lineHeight: 0.93, letterSpacing: "-0.03em", marginBottom: 18 }}>
+      <span style={{ display: "block", fontFamily: "Georgia, serif", fontStyle: "italic", fontWeight: 400, color: "#00e5c3", lineHeight: 1.05 }}>Jisshnu</span>
+      <span style={{ display: "block", color: "#e8eaf2" }}>Hemakumar</span>
+      <span style={{ display: "block", color: "#e8eaf2" }}>Jayanthi</span>
+    </h1>
+
+    <div style={{ display: "flex", alignItems: "center", gap: 6, fontFamily: "monospace", fontSize: "1rem", color: "#6b7491", marginBottom: 18, minHeight: "1.7em" }}>
+      <span style={{ color: "#00e5c3" }}>{">"}</span>
+      <span>{role}</span>
+      <span style={{ color: "#00e5c3", animation: "blink 1s infinite" }}>█</span>
+    </div>
+
+    <p style={{ fontSize: "0.97rem", fontFamily: "monospace", lineHeight: 1.82, color: "#6b7491", width: "100%", margin: "0", marginBottom: 36 }}>
+      Graduate Data Scientist at Monash!! developing ML models and data visualization dashboards, <span style={{ color: "#00e5c3" }}> seeking full-time Data Scientist or Analyst roles </span>, with a hobbyist interest in aviation ✈️
+    </p>
+
+    <div style={{ display: "flex", gap: 12, marginBottom: 52, flexWrap: "wrap" }}>
+      {[{ l: "View Projects →", h: "#projects", p: true }, { l: "LinkedIn ↗", h: "https://www.linkedin.com/in/jisshnuhj/", p: false }].map(({ l, h, p }) => (
+        <a key={l} href={h} target={h.startsWith("http") ? "_blank" : undefined} rel="noreferrer"
+          style={{ padding: "13px 28px", borderRadius: 10, fontWeight: 700, fontSize: "0.88rem", letterSpacing: "0.04em", background: p ? "#00e5c3" : "rgba(255,255,255,0.04)", color: p ? "#080b12" : "#e8eaf2", border: p ? "none" : "1px solid rgba(255,255,255,0.08)", transition: "all 0.25s" }}>
+          {l}
+        </a>
+      ))}
+    </div>
+
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(7, auto)", gap: 36, alignItems: "center" }}>
+      {[{ n: `${i3} +`, l: "Industry Experiences" }, { n: `10 +`, l: "Hackathons & Events" }, { n: `50 +`, l: "Peers Mentored" }, { n: `20${i26}`, l: "MS Grad" }].map(({ n, l }, i) => (
+        <div key={l} style={{ display: "flex", alignItems: "center", gap: 36 }}>
+          {i > 0 && <div style={{ width: 1, height: 34, background: "rgba(255,255,255,0.08)" }} />}
+          <div>
+            <div style={{ fontWeight: 800, fontSize: "1.9rem", letterSpacing: "-0.04em", color: "#e8eaf2", lineHeight: 1 }}>{n}</div>
+            <div style={{ fontFamily: "monospace", fontSize: "0.62rem", color: "#3d4259", letterSpacing: "0.1em", textTransform: "uppercase", marginTop: 3 }}>{l}</div>
           </div>
         </div>
-     </div>
+      ))}
+    </div>
+
+  </div>
+
+  <div style={{ display: "flex", justifyContent: "center" }}>
+    <ImageCarousel />
+  </div>
+
+</div>
+</div> 
+
     </section>
   );
 }
