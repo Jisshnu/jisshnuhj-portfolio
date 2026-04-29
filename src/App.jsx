@@ -3,27 +3,6 @@ import { useState, useEffect, useRef, useCallback } from "react";
 // ─── DATA ────────────────────────────────────────────────────────────────────
 const ROLES = ["Data Science Graduate", "Aspiring Recreational Pilot", "Turning Data into Impact", "Aspiring Data Analyst", "Automotive Enthusiast"];
 
-const EXPERIENCES = [
-  {
-    id: 0, company: "GP Outsourcing Asia", role: "Intern – TeaMWork Program",
-    period: "Jun–Jul 2025", loc: "Malaysia 🇲🇾", color: "#ff6b9d", emoji: "🌏",
-    points: ["Designed a market entry blueprint for international businesses expanding into Malaysia via EOR solutions.", "Compared EOR vs traditional entry models on compliance, efficiency & sustainability.", "Delivered a strategic report to industry mentors."],
-    tags: ["Strategy", "EOR", "Market Analysis"],
-  },
-  {
-    id: 1, company: "Larsen & Toubro", role: "Data Science & Analytics Intern",
-    period: "Jun 2023 – Jun 2024", loc: "India 🇮🇳", color: "#00e5c3", emoji: "⚙️",
-    points: ["Applied ML to sensor data from water treatment plants for process optimisation.", "Built predictive models (Python, Pandas, Scikit-Learn) for inflow, energy & maintenance forecasting.", "Created Tableau & Power BI dashboards for KPIs, downtime & water quality metrics.", "Integrated IoT, SCADA & ERP data into real-time analytics pipelines."],
-    tags: ["Python", "Scikit-Learn", "Tableau", "Power BI", "IoT", "SCADA"],
-  },
-  {
-    id: 2, company: "Hyundai Motors", role: "Web Development Intern",
-    period: "Mar–May 2022", loc: "India 🇮🇳", color: "#ffb347", emoji: "🚗",
-    points: ["Enhanced frontend of Hyundai's internal UI systems.", "Built responsive ReactJS + Bootstrap components.", "Integrated REST APIs and contributed to debugging & refactoring."],
-    tags: ["ReactJS", "JavaScript", "Bootstrap", "REST APIs"],
-  },
-];
-
 const EXTRAS = [
   { id: 0, emoji: "✈️", title: "NCC – National Cadet Corps", badge: "Outstanding NCC Cadet Award", color: "#00e5c3", desc: "Flew the Virus-SW80 aircraft at 10,000ft — the pinnacle of NCC service. Recognised with the prestigious Outstanding NCC Cadet award.", highlights: ["Virus-SW80 aircraft", "10,000ft altitude", "Outstanding Cadet Award"] },
   { id: 1, emoji: "🎓", title: "Peer Mentor – Faculty of IT", badge: "Monash University", color: "#ffb347", desc: "Guided new IT students through academic transitions, wellbeing check-ins, study skills and course planning. Built community via events and regular communication.", highlights: ["Academic transition", "Wellbeing check-ins", "Study skills & events"] },
@@ -172,42 +151,136 @@ function ParticleCanvas() {
 // ─── RADAR CHART ─────────────────────────────────────────────────────────────
 function RadarChart({ visible }) {
   const ref = useRef();
+
   useEffect(() => {
     if (!visible) return;
-    const c = ref.current; const ctx = c.getContext("2d");
-    const cx = c.width / 2, cy = c.height / 2, r = 85;
+
+    const c = ref.current;
+    const ctx = c.getContext("2d");
+
+    const padding = 90; // 🔥 gives space for labels
+    const cx = c.width / 2;
+    const cy = c.height / 2;
+    const r = (c.width - padding * 2) * 0.4; 
+
     const data = [
-      { label: "Python/ML", v: 0.87 }, { label: "Data Viz", v: 0.88 },
-      { label: "SQL/DB", v: 0.8 }, { label: "React/Web", v: 0.76 },
-      { label: "Stats", v: 0.82 }, { label: "Leadership", v: 0.79 },
+      { label: "Machine Learning", v: 0.87 },
+      { label: "Data Visualisation", v: 0.88 },
+      { label: "Data Engineering", v: 0.8 },
+      { label: "Stakeholder Engagement", v: 0.76 },
+      { label: "Statistics", v: 0.82 },
+      { label: "SQL & Databases", v: 0.79 },
     ];
+
     const n = data.length;
     const angles = data.map((_, i) => (i / n) * Math.PI * 2 - Math.PI / 2);
+
     let prog = 0, raf;
+
     const draw = () => {
       ctx.clearRect(0, 0, c.width, c.height);
+
+      // 🔹 grid rings
       for (let ring = 1; ring <= 4; ring++) {
         ctx.beginPath();
-        angles.forEach((a, i) => { const x = cx + r * (ring / 4) * Math.cos(a), y = cy + r * (ring / 4) * Math.sin(a); i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y); });
-        ctx.closePath(); ctx.strokeStyle = "rgba(255,255,255,0.06)"; ctx.lineWidth = 1; ctx.stroke();
+        angles.forEach((a, i) => {
+          const x = cx + r * (ring / 4) * Math.cos(a);
+          const y = cy + r * (ring / 4) * Math.sin(a);
+          i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+        });
+        ctx.closePath();
+        ctx.strokeStyle = "rgba(255,255,255,0.12)";
+        ctx.lineWidth = 1;
+        ctx.stroke();
       }
-      angles.forEach(a => { ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx + r * Math.cos(a), cy + r * Math.sin(a)); ctx.strokeStyle = "rgba(255,255,255,0.05)"; ctx.lineWidth = 1; ctx.stroke(); });
-      ctx.beginPath();
-      data.forEach((d, i) => { const v = d.v * prog, x = cx + r * v * Math.cos(angles[i]), y = cy + r * v * Math.sin(angles[i]); i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y); });
-      ctx.closePath(); ctx.fillStyle = "rgba(0,229,195,0.1)"; ctx.fill(); ctx.strokeStyle = "#00e5c3"; ctx.lineWidth = 2; ctx.stroke();
-      data.forEach((d, i) => {
-        const v = d.v * prog, x = cx + r * v * Math.cos(angles[i]), y = cy + r * v * Math.sin(angles[i]);
-        ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI * 2); ctx.fillStyle = "#00e5c3"; ctx.fill(); ctx.strokeStyle = "#080b12"; ctx.lineWidth = 2; ctx.stroke();
+
+      // 🔹 axis lines
+      angles.forEach(a => {
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.lineTo(cx + r * Math.cos(a), cy + r * Math.sin(a));
+        ctx.strokeStyle = "rgba(255,255,255,0.06)";
+        ctx.stroke();
       });
-      ctx.font = "10px 'DM Mono', monospace"; ctx.textAlign = "center"; ctx.fillStyle = "#6b7491";
-      data.forEach((d, i) => { const x = cx + (r + 22) * Math.cos(angles[i]), y = cy + (r + 22) * Math.sin(angles[i]); ctx.fillText(d.label, x, y + 4); });
+
+      // 🔥 main polygon with glow
+      ctx.beginPath();
+      data.forEach((d, i) => {
+        const v = d.v * prog;
+        const x = cx + r * v * Math.cos(angles[i]);
+        const y = cy + r * v * Math.sin(angles[i]);
+        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      });
+      ctx.closePath();
+
+      ctx.shadowColor = "#00e5c3";
+      ctx.shadowBlur = 12;
+
+      ctx.fillStyle = "rgba(0,229,195,0.12)";
+      ctx.fill();
+
+      ctx.strokeStyle = "#00e5c3";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      ctx.shadowBlur = 0;
+
+      // 🔹 points
+      data.forEach((d, i) => {
+        const v = d.v * prog;
+        const x = cx + r * v * Math.cos(angles[i]);
+        const y = cy + r * v * Math.sin(angles[i]);
+
+        ctx.beginPath();
+        ctx.arc(x, y, 6, 0, Math.PI * 2);
+        ctx.fillStyle = "#00e5c3";
+        ctx.fill();
+
+        ctx.strokeStyle = "#080b12";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      });
+
+      // 🔥 labels (FIXED alignment + spacing)
+      ctx.font = "600 13px Inter, sans-serif";
+      ctx.fillStyle = "#aab2cf";
+
+      data.forEach((d, i) => {
+        const angle = angles[i];
+        const labelOffset = r + 26;
+
+        const x = cx + labelOffset * Math.cos(angle);
+        const y = cy + labelOffset * Math.sin(angle);
+
+        // 🔥 dynamic alignment
+        if (Math.cos(angle) > 0.3) ctx.textAlign = "left";
+        else if (Math.cos(angle) < -0.3) ctx.textAlign = "right";
+        else ctx.textAlign = "center";
+
+        ctx.fillText(d.label, x, y + 4);
+      });
+
       prog = Math.min(1, prog + 0.028);
       if (prog < 1) raf = requestAnimationFrame(draw);
     };
+
     draw();
     return () => cancelAnimationFrame(raf);
+
   }, [visible]);
-  return <canvas ref={ref} width={260} height={260} style={{ display: "block" }} />;
+
+  return (
+    <canvas
+      ref={ref}
+      width={520}
+      height={420}
+      style={{
+        width: "100%",
+        maxWidth: 460,
+        display: "block"
+      }}
+    />
+  );
 }
 
 // ─── FLIGHT PATH CANVAS ───────────────────────────────────────────────────────
@@ -345,7 +418,7 @@ function Nav({ scrollY }) {
     <nav style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "space-between", padding: scrolled ? "12px 48px" : "20px 48px", background: scrolled ? "rgba(8,11,18,0.92)" : "transparent", backdropFilter: scrolled ? "blur(20px)" : "none", borderBottom: scrolled ? "1px solid rgba(255,255,255,0.06)" : "1px solid transparent", transition: "all 0.4s ease" }}>
       <span style={{ fontFamily: "monospace", fontSize: "0.8rem", color: "#00e5c3", letterSpacing: "0.2em" }}>✈️ JHJ.DEV</span>
       <div style={{ display: "flex", gap: 28 }}>
-        {["about", "experience", "projects", "skills", "extras", "contact"].map(s => (
+        {["about", "education", "experience", "projects", "skills", "extras", "contact"].map(s => (
           <button key={s} onClick={() => go(s)} style={{ background: "none", border: "none", fontFamily: "sans-serif", fontWeight: 600, fontSize: "0.78rem", letterSpacing: "0.08em", textTransform: "uppercase", color: "#6b7491", cursor: "pointer", transition: "color 0.2s" }}
             onMouseEnter={e => e.target.style.color = "#00e5c3"} onMouseLeave={e => e.target.style.color = "#6b7491"}>
             {s === "extras" ? "extracurricular" : s}
@@ -355,18 +428,14 @@ function Nav({ scrollY }) {
       <button onClick={() => go("contact")} style={{ fontFamily: "monospace", fontSize: "0.75rem", color: "#080b12", background: "#00e5c3", padding: "9px 20px", borderRadius: 100, border: "none", cursor: "pointer", fontWeight: 600, letterSpacing: "0.08em" }}
         onMouseEnter={e => { e.target.style.background = "#00ffda"; e.target.style.transform = "scale(1.04)"; }}
         onMouseLeave={e => { e.target.style.background = "#00e5c3"; e.target.style.transform = "none"; }}>
-        Hire Me ✈️
+        Let's Connect ✈️
       </button>
     </nav>
   );
 }
 function ImageCarousel() {
   const images = [
-    "/images/profile1.jpg",
-    "/images/profile2.jpg",
-    "/images/profile3.jpg",
-    "/images/profile4.jpg",
-    "/images/profile5.jpg",
+    "/images/profile2.jpeg",
   ];
 
   const [index, setIndex] = useState(0);
@@ -379,24 +448,59 @@ function ImageCarousel() {
   }, []);
 
   return (
-    <div style={{
-      width: 320,
-      height: 420,
+<div
+  style={{
+    width: 320,
+    height: 420,
+    borderRadius: 22,
+    padding: 3, // creates border space
+    background: "linear-gradient(135deg, #00e5c3, white, rgba(79,70,229,0.3)",
+    boxShadow:
+      "0 0 25px rgba(0,229,195,0.5), 0 0 60px rgba(79,70,229,0.3)",
+    transition: "all 0.3s ease",
+  }}
+  onMouseEnter={(e) => {
+    e.currentTarget.style.boxShadow =
+      "0 0 40px rgba(0,229,195,0.8), 0 0 90px rgba(79,70,229,0.5)";
+  }}
+  onMouseLeave={(e) => {
+    e.currentTarget.style.boxShadow =
+      "0 0 25px rgba(0,229,195,0.5), 0 0 60px rgba(79,70,229,0.3)";
+  }}
+>
+  {/* INNER CARD */}
+  <div
+    style={{
+      width: "100%",
+      height: "100%",
       borderRadius: 20,
       overflow: "hidden",
-      border: "1px solid rgba(255,255,255,0.08)",
-      background: "#141824"
-    }}>
-      <img
-        src={images[index]}
-        alt=""
-        style={{
-          width: "100%",
-          height: "100%",
-          objectFit: "cover"
-        }}
-      />
-    </div>
+      background: "#0a0f1c",
+      position: "relative",
+    }}
+  >
+    <img
+      src={images[index]}
+      alt=""
+      style={{
+        width: "100%",
+        height: "100%",
+        objectFit: "cover", // perfect fit
+      }}
+    />
+
+    {/* subtle light sweep */}
+    <div
+      style={{
+        position: "absolute",
+        inset: 0,
+        background:
+          "linear-gradient(120deg, transparent, rgba(0,229,195,0.15), transparent)",
+        pointerEvents: "none",
+      }}
+    />
+  </div>
+</div>
   );
 }
 
@@ -445,7 +549,7 @@ function Hero() {
     </div>
 
     <p style={{ fontSize: "0.97rem", fontFamily: "monospace", lineHeight: 1.82, color: "#6b7491", width: "100%", margin: "0", marginBottom: 36 }}>
-      Graduate Data Scientist at Monash!! developing ML models and data visualization dashboards, <span style={{ color: "#00e5c3" }}> seeking full-time Data Scientist or Analyst roles </span>, with a hobbyist interest in aviation ✈️
+      Graduate Data Scientist at Monash!! creating interactive and engaging data visualization dashboards, <span style={{ color: "#00e5c3" }}> seeking full-time Data Scientist or Analyst roles </span>, with a hobbyist interest in aviation ✈️
     </p>
 
     <div style={{ display: "flex", gap: 12, marginBottom: 52, flexWrap: "wrap" }}>
@@ -458,7 +562,7 @@ function Hero() {
     </div>
 
     <div style={{ display: "grid", gridTemplateColumns: "repeat(7, auto)", gap: 36, alignItems: "center" }}>
-      {[{ n: `${i3} +`, l: "Industry Experiences" }, { n: `10 +`, l: "Hackathons & Events" }, { n: `50 +`, l: "Peers Mentored" }, { n: `20${i26}`, l: "MS Grad" }].map(({ n, l }, i) => (
+      {[{ n: `${i3} `, l: "Industry Experiences" }, { n: `10 +`, l: "Hackathons & Events" }, { n: `50 +`, l: "Peers Mentored" }, { n: `20${i26}`, l: "MS Grad" }].map(({ n, l }, i) => (
         <div key={l} style={{ display: "flex", alignItems: "center", gap: 36 }}>
           {i > 0 && <div style={{ width: 1, height: 34, background: "rgba(255,255,255,0.08)" }} />}
           <div>
@@ -490,46 +594,192 @@ function About() {
         <SectionHead tag="01 — About" title={<>The Story <em style={{ fontFamily: "Georgia,serif", fontStyle: "italic", fontWeight: 400, color: "#00e5c3" }}>Behind the Data</em></>} />
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 72, alignItems: "start" }}>
           <div>
-            <p style={{ fontSize: "1.05rem", lineHeight: 1.85, color: "#e8eaf2", marginBottom: 18 }}>
-              I'm a Data Science master's student at <span style={{ color: "#00e5c3", fontWeight: 700 }}>Monash University, Melbourne</span>, with a B.Tech in IT from Sri Venkateswara College of Engineering, Chennai.
+            <p style={{ fontFamily: "monospace", fontSize: "1rem", lineHeight: 1.85, color: "#e8eaf2", marginBottom: 18 }}>
+              Hey, I’m Jisshnu, a Data Science Master’s student at <span style={{ color: "#00e5c3", fontWeight: 700 }}>Monash University, Melbourne 🇦🇺</span> with a B.Tech in Information Technology from Anna University, India 🇮🇳
             </p>
-            <p style={{ fontSize: "0.94rem", lineHeight: 1.85, color: "#6b7491", marginBottom: 18 }}>
-              My work bridges ML, data engineering, and storytelling. I've built predictive systems for water treatment plants at L&T, analysed Melbourne's metro commuter patterns, and developed health-risk models using wearable sensor data.
+            <p style={{ fontFamily: "monospace", fontSize: "1rem",lineHeight: 1.85, color: "#6b7491", marginBottom: 18 }}>
+              I work across machine learning, data engineering, and data visualisation, turning messy data into meaningful and usable insights.
             </p>
-            <p style={{ fontSize: "0.94rem", lineHeight: 1.85, color: "#6b7491", marginBottom: 32 }}>
-              Beyond the terminal — I'm an NCC cadet who's <span style={{ color: "#ffb347" }}>flown aircraft at 10,000ft</span>, a peer mentor for IT students, an Exec Committee member of the Student Council, and a firm believer that good data storytelling changes how decisions get made.
+            <p style={{ fontFamily: "monospace", fontSize: "1rem", lineHeight: 1.85, color: "#e8eaf2", marginBottom: 32 }}>
+              I’ve worked on real-world projects involving predictive modelling, transport data analysis, and health-risk modelling using Python, R, SQL, and modern BI tools.
             </p>
-            <div style={{ background: "#141824", border: "none", borderRadius: 16, padding: 26 }}>
-              <div style={{ fontFamily: "monospace", fontSize: "0.6rem", color: "#3d4259", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 18 }}>// proficiency</div>
-              {[["Python / Pandas", 90, "#00e5c3"], ["ML Models", 85, "#ff6b9d"], ["Tableau / Power BI", 86, "#ffb347"], ["SQL / Databases", 82, "#00e5c3"], ["React / JS", 76, "#a78bfa"]].map(([lb, pct, col], i) => (
-                <div key={lb} style={{ marginBottom: 13 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5 }}>
-                    <span style={{ fontFamily: "monospace", fontSize: "0.7rem", color: "#6b7491" }}>{lb}</span>
-                    <span style={{ fontFamily: "monospace", fontSize: "0.68rem", color: col }}>{pct}%</span>
-                  </div>
-                  <div style={{ height: 3, background: "rgba(255,255,255,0.04)", borderRadius: 2, overflow: "hidden" }}>
-                    <div style={{ height: "100%", width: vis ? `${pct}%` : "0%", background: col, borderRadius: 2, transition: `width 1.1s ease ${i * 0.1}s`, boxShadow: `0 0 8px ${col}55` }} />
-                  </div>
-                </div>
-              ))}
-            </div>
+            <p style={{ fontFamily: "monospace", fontSize: "1rem", lineHeight: 1.85, color: "#6b7491", marginBottom: 32 }}>
+              I enjoy building things that don’t just work, but actually make sense to people, whether that’s through clean analysis, dashboards, or insights sharing.
+            </p>
+            <p style={{ fontFamily: "monospace", fontSize: "1rem", lineHeight: 1.85, color: "#e8eaf2", marginBottom: 32 }}>
+              I’m currently <span style={{ color: "#00e5c3", fontWeight: 700 }}> looking for opportunities </span> where I can contribute and work on impactful data-driven problems. </p>
           </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-            <div style={{ background: "#141824", border: "none", borderRadius: 16, padding: 24, display: "flex", flexDirection: "column", alignItems: "center" }}>
-              <div style={{ fontFamily: "monospace", fontSize: "0.6rem", color: "#3d4259", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 14, alignSelf: "flex-start" }}>// skill radar</div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 20, height: "100%" }}>
+            <div style={{ background: "#141824", border: "none", borderRadius: 16, padding: 24, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",height: "100%" }}>
+              <div style={{ fontFamily: "monospace", fontSize: "0.9rem", color: "#3d4259", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 14, alignSelf: "flex-start" }}>// skill radar</div>
               <RadarChart visible={vis} />
             </div>
-            {[{ school: "Monash University", deg: "MSc Data Science", period: "2024–2026", loc: "Melbourne", tag: "Current", c: "#00e5c3" }, { school: "SVCE, Chennai", deg: "B.Tech – IT", period: "2020–2024", loc: "India", tag: "Grad", c: "#ffb347" }].map(e => (
-              <div key={e.school} style={{ background: "#141824", border: "none", borderLeft: `3px solid ${e.c}`, borderRadius: "3px 14px 14px 3px", padding: "18px 22px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <div>
-                  <div style={{ fontWeight: 700, fontSize: "0.9rem", color: "#e8eaf2", marginBottom: 3 }}>{e.school}</div>
-                  <div style={{ fontFamily: "monospace", fontSize: "0.7rem", color: "#6b7491" }}>{e.deg}</div>
-                  <div style={{ fontFamily: "monospace", fontSize: "0.62rem", color: "#3d4259", marginTop: 3 }}>{e.period} · {e.loc}</div>
-                </div>
-                <div style={{ fontFamily: "monospace", fontSize: "0.62rem", color: e.c, background: e.c + "15", border: `1px solid ${e.c}35`, borderRadius: 100, padding: "3px 10px" }}>{e.tag}</div>
-              </div>
-            ))}
           </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── EDUCATION ───────────────────────────────────────────────────────────────
+
+function Education() {
+  return (
+    <section id="education" style={{ background: "#080b12", padding: "120px 0" }}>
+      <div style={{ width: "100%", margin: "0 auto", padding: "0 48px" }}>
+
+        <SectionHead
+          tag="02 — Education"
+          title={
+            <>Crafting the <em style={{ fontFamily: "Georgia,serif", fontStyle: "italic", fontWeight: 400, color: "#00e5c3" }}>Foundation</em></>
+          }
+        />
+
+        <div style={{ position: "relative", marginTop: 70 }}>
+
+          {/* Vertical line */}
+          <div
+            style={{
+              position: "absolute",
+              left: 20,
+              top: 0,
+              bottom: 0,
+              width: 2,
+              background: "linear-gradient(to bottom, #00e5c3, rgba(255,255,255,0.05))"
+            }}
+          />
+
+          {/* ITEM 1 — CURRENT */}
+          <div style={{ display: "flex", gap: 30, marginBottom: 60, position: "relative" }}>
+            
+            {/* Dot */}
+            <div
+              style={{
+                width: 14,
+                height: 14,
+                borderRadius: "50%",
+                background: "#00e5c3",
+                marginTop: 6,
+                flexShrink: 0,
+                boxShadow: "0 0 14px #00e5c3"
+              }}
+            />
+
+            {/* Card */}
+            <div
+              style={{
+                background: "linear-gradient(145deg, #141824, #10131c)",
+                borderRadius: 18,
+                padding: 26,
+                border: "1px solid rgba(0,229,195,0.25)",
+                width: "100%",
+                transition: "all 0.3s ease"
+              }}
+              onMouseEnter={e => e.currentTarget.style.transform = "translateY(-4px)"}
+              onMouseLeave={e => e.currentTarget.style.transform = "translateY(0)"}
+            >
+              {/* Header */}
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div style={{ fontWeight: 700, fontSize: "1.1rem", color: "#e8eaf2" }}>
+                  Monash University
+                </div>
+
+                <span style={{
+                  fontSize: "0.65rem",
+                  padding: "4px 10px",
+                  borderRadius: 20,
+                  background: "rgba(0,229,195,0.15)",
+                  color: "#00e5c3",
+                  fontFamily: "monospace"
+                }}>
+                  EXPECTED TO GRADUATE - JUNE 2026
+                </span>
+              </div>
+
+              <div style={{ fontFamily: "monospace", fontSize: "0.75rem", color: "#00e5c3", marginTop: 6 }}>
+                Master of Data Science
+              </div>
+
+              <div style={{ fontFamily: "monospace", fontSize: "0.7rem", color: "#6b7491", marginBottom: 14 }}>
+                2024 — 2026 · Melbourne, Australia 🇦🇺
+              </div>
+              <div style={{fontFamily: "monospace", fontSize: "0.7rem", fontWeight: 700, color: "#e8eaf2", marginBottom: 14, letterSpacing: "0.02em"}}>                
+                Grade: High Distinction
+              </div>
+
+              <div style={{ fontFamily: "monospace", fontSize: "0.7rem", color: "#6b7491", marginBottom: 14 }}>
+                Activities and societies: Peer Mentor (Faculty of IT), Student Engagement & Academic Support.
+              </div>
+              <div style={{ fontFamily: "monospace", fontSize: "0.7rem", color: "#6b7491", marginBottom: 14 }}>
+                Recognition: Awarded a commendation by Monash University for achieving High Distinctions across all Semester 2 units.
+              </div>
+
+            </div>
+          </div>
+
+          {/* ITEM 2 */}
+          <div style={{ display: "flex", gap: 30, position: "relative" }}>
+            
+            <div
+              style={{
+                width: 14,
+                height: 14,
+                borderRadius: "50%",
+                background: "#ffb347",
+                marginTop: 6,
+                flexShrink: 0,
+                boxShadow: "0 0 14px #ffb347"
+              }}
+            />
+
+            <div
+              style={{
+                background: "#141824",
+                borderRadius: 18,
+                padding: 26,
+                border: "1px solid rgba(255,179,71,0.25)",
+                width: "100%",
+                transition: "all 0.3s ease"
+              }}
+              onMouseEnter={e => e.currentTarget.style.transform = "translateY(-4px)"}
+              onMouseLeave={e => e.currentTarget.style.transform = "translateY(0)"}
+            >
+              <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <div style={{ fontWeight: 700, fontSize: "1.1rem", color: "#e8eaf2" }}>
+                  Anna University
+                </div>
+
+                <span style={{
+                  fontSize: "0.65rem",
+                  padding: "4px 10px",
+                  borderRadius: 20,
+                  background: "rgba(255,179,71,0.15)",
+                  color: "#ffb347",
+                  fontFamily: "monospace"
+                }}>
+                  GRADUATED
+                </span>
+              </div>
+
+              <div style={{ fontFamily: "monospace", fontSize: "0.75rem", color: "#ffb347", marginTop: 6 }}>
+                B.Tech in Information Technology
+              </div>
+
+              <div style={{ fontFamily: "monospace", fontSize: "0.7rem", color: "#6b7491", marginBottom: 14 }}>
+                2020 — 2024 · Chennai, India 🇮🇳
+              </div>
+
+              <div style={{fontFamily: "monospace", fontSize: "0.7rem", fontWeight: 700, color: "#e8eaf2", marginBottom: 14, letterSpacing: "0.02em"}}>                
+                Grade: First Class with Distinction
+              </div>
+              
+              <div style={{ fontFamily: "monospace", fontSize: "0.7rem", color: "#6b7491", marginBottom: 14 }}>
+                Activities and societies: Executive Committee Member of Student Council, Vice President of RRC, Cadet Warrant Officer of NCC Airwing and a proud recipient of the Outstanding NCC Cadet Award.
+              </div>
+              
+            </div>
+          </div>
+
         </div>
       </div>
     </section>
@@ -538,49 +788,180 @@ function About() {
 
 // ─── EXPERIENCE ───────────────────────────────────────────────────────────────
 function Experience() {
-  const [active, setActive] = useState(1);
-  const exp = EXPERIENCES[active];
+  const experiences = [
+    {
+      company: "GP Outsourcing Asia",
+      logo: "/logos/gp.png",
+      role: "Intern – EOR Solutions (TeaMWork Internship Program)",
+      period: "Jun 2025 – Jul 2025 · 2 months",
+      loc: "Remote 👨🏻‍💻",
+      color: "#ff6b9d",
+      points: [
+        "Designed a strategic market entry blueprint for international businesses expanding into Malaysia using Employer of Record (EOR) solutions.",
+        "Conducted a comparative analysis of EOR vs traditional entry models to evaluate compliance, efficiency, and sustainability.",
+        "Developed industry-specific playbooks tailored for tech, fintech, and healthcare sectors.",
+        "Aligned recommendations with Malaysia’s employment policies and the United Nations Sustainable Development Goals (SDGs).",
+        "Collaborated with industry mentors and delivered findings and a strategic report."
+      ]
+    },
+    {
+      company: "Larsen & Toubro",
+      logo: "/logos/lt.png",
+      role: "Data Science & Analytics Intern",
+      period: "Jun 2023 – Jun 2024 · 1 year",
+      loc: "Chennai, India 🇮🇳 · On-site",
+      color: "#00e5c3",
+      points: [
+        "Applied data science and machine learning techniques to analyze operational and sensor data from water treatment plants, supporting process optimization and sustainability goals.",
+        "Built predictive models using Python to forecast inflow, energy usage, and equipment maintenance needs.",
+        "Created interactive dashboards in Tableau and Power BI to visualize KPIs, downtime patterns, and water quality metrics for engineering teams.",
+        "Performed exploratory data analysis (EDA) and anomaly detection to identify performance inefficiencies and optimize treatment cycles.",
+        "Collaborated with cross-functional teams to integrate IoT, SCADA, and ERP data into unified analytics pipelines for real-time decision support."
+      ]
+    },
+    {
+      company: "Hyundai Motor India Ltd.",
+      logo: "/logos/hyundai.png",
+      role: "Web Development Intern",
+      period: "Mar 2022 – May 2022 · 3 months",
+      loc: "Chennai, India 🇮🇳 · On-site",
+      color: "#ffb347",
+      points: [
+        "Contributed to a frontend enhancement project for Hyundai's internal platforms, improving UI responsiveness and user experience.",
+        "Developed dynamic, reusable components using JavaScript, ReactJS, and Bootstrap, with a strong emphasis on performance optimization.",
+        "Collaborated cross-functionally with backend teams to integrate RESTful APIs, enabling seamless real-time data flow.",
+        "Actively participated in debugging, code refactoring, and enhancing production readiness of React components through performance tuning and code reviews."
+      ]
+    }
+  ];
+
   return (
-    <section id="experience" style={{ background: "#080b12", padding: "120px 0" }}>
-      <div style={{ width: "100%", margin: "0 auto", padding: "0 48px" }}>
-        <SectionHead tag="02 — Experience" title={<>Where I've <em style={{ fontFamily: "Georgia,serif", fontStyle: "italic", fontWeight: 400, color: "#00e5c3" }}>Made an Impact</em></>} />
-        <div style={{ display: "grid", gridTemplateColumns: "340px 1fr", gap: 28 }}>
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {EXPERIENCES.map((e, i) => (
-              <div key={e.id} onClick={() => setActive(i)} style={{ background: active === i ? e.color + "0d" : "#141824", border: `1px solid ${active === i ? e.color + "45" : "rgba(255,255,255,0.06)"}`, borderLeft: `3px solid ${active === i ? e.color : "rgba(255,255,255,0.06)"}`, borderRadius: "3px 14px 14px 3px", padding: "18px 20px", cursor: "pointer", transition: "all 0.3s", transform: active === i ? "translateX(5px)" : "none" }}
-                onMouseEnter={e2 => { if (active !== i) e2.currentTarget.style.borderColor = e.color + "25"; }}
-                onMouseLeave={e2 => { if (active !== i) e2.currentTarget.style.borderColor = "rgba(255,255,255,0.06)"; }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 3 }}>
-                  <span style={{ fontSize: "1.1rem" }}>{e.emoji}</span>
-                  <span style={{ fontWeight: 700, fontSize: "0.9rem", color: "#e8eaf2" }}>{e.company}</span>
-                </div>
-                <div style={{ fontFamily: "monospace", fontSize: "0.68rem", color: e.color, marginBottom: 2 }}>{e.role}</div>
-                <div style={{ fontFamily: "monospace", fontSize: "0.6rem", color: "#3d4259" }}>{e.period}</div>
+    <section id="experience" style={{ background: "#0d1117", padding: "120px 0" }}>
+      <div style={{ padding: "0 48px", maxWidth: 1100, margin: "0 auto" }}>
+
+        <SectionHead
+          tag="03 — Experience"
+          title={
+            <>Where I've <em style={{ fontStyle: "italic", color: "#00e5c3" }}>Made an Impact</em></>
+          }
+        />
+
+        <div style={{ position: "relative", marginTop: 80 }}>
+
+          {/* Timeline line */}
+          <div style={{
+            position: "absolute",
+            left: "50%",
+            top: 0,
+            bottom: 0,
+            width: 2,
+            transform: "translateX(-50%)",
+            background: "linear-gradient(to bottom, #00e5c3, rgba(255,255,255,0.05))"
+          }} />
+
+          {experiences.map((exp, i) => (
+            <div
+              key={i}
+              style={{
+                display: "flex",
+                justifyContent: i % 2 === 0 ? "flex-start" : "flex-end",
+                marginBottom: 80,
+                position: "relative"
+              }}
+            >
+
+              {/* Dot */}
+              <div style={{
+                position: "absolute",
+                left: "50%",
+                transform: "translateX(-50%)",
+                width: 16,
+                height: 16,
+                borderRadius: "50%",
+                background: exp.color,
+                boxShadow: `0 0 15px ${exp.color}`
+              }} />
+
+              {/* Card */}
+              <div
+                style={{
+                  width: "46%",
+                  background: "#141824",
+                  borderRadius: 20,
+                  padding: 26,
+                  border: `1px solid ${exp.color}25`,
+                  transition: "all 0.35s ease"
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.transform = "translateY(-6px)";
+                  e.currentTarget.style.boxShadow = `0 10px 40px ${exp.color}20`;
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.transform = "translateY(0)";
+                  e.currentTarget.style.boxShadow = "none";
+                }}
+              >
+
+                {/* Logo placeholder */}
+              <div style={{
+                width: 42,
+                height: 42,
+                borderRadius: 10,
+                background: "rgba(255,255,255,0.05)",
+                marginBottom: 14,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                overflow: "hidden"
+              }}>
+              <img
+                src={exp.logo}
+                alt={exp.company}
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "contain"
+                }}
+                onError={(e) => {
+                  console.log("Image failed:", exp.logo);
+                  e.target.style.display = "none";
+                }}
+              />
               </div>
-            ))}
-          </div>
-          <div key={active} style={{ background: "#141824", border: `1px solid ${exp.color}30`, borderRadius: 20, padding: 34, position: "relative", overflow: "hidden", animation: "slidein 0.35s ease" }}>
-            <div style={{ position: "absolute", top: -60, right: -60, width: 200, height: 200, background: `radial-gradient(circle,${exp.color}12,transparent 70%)`, pointerEvents: "none" }} />
-            <div style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 6 }}>
-              <span style={{ fontSize: "2rem" }}>{exp.emoji}</span>
-              <div>
-                <div style={{ fontWeight: 800, fontSize: "1.25rem", color: "#e8eaf2" }}>{exp.company}</div>
-                <div style={{ fontFamily: "monospace", fontSize: "0.72rem", color: exp.color }}>{exp.role}</div>
+
+                <div style={{
+                  fontFamily: "monospace",
+                  fontSize: "0.75rem",
+                  color: exp.color,
+                  marginBottom: 6
+                }}>
+                  {exp.role}
+                </div>
+
+                <div style={{
+                  fontFamily: "monospace",
+                  fontSize: "0.65rem",
+                  color: "#6b7491",
+                  marginBottom: 14
+                }}>
+                  {exp.period} · {exp.loc}
+                </div>
+
+                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                  {exp.points.map((p, idx) => (
+                    <div key={idx} style={{ display: "flex", gap: 8 }}>
+                      <span style={{ color: exp.color }}>→</span>
+                      <span style={{ fontSize: "0.85rem", color: "#8891aa", lineHeight: 1.6 }}>
+                        {p}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+
               </div>
             </div>
-            <div style={{ fontFamily: "monospace", fontSize: "0.65rem", color: "#3d4259", marginBottom: 24 }}>{exp.period} · {exp.loc}</div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 24 }}>
-              {exp.points.map((pt, i) => (
-                <div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
-                  <span style={{ color: exp.color, fontFamily: "monospace", fontSize: "0.78rem", marginTop: 2, flexShrink: 0 }}>→</span>
-                  <p style={{ fontSize: "0.87rem", lineHeight: 1.72, color: "#8891aa", margin: 0 }}>{pt}</p>
-                </div>
-              ))}
-            </div>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
-              {exp.tags.map(t => <span key={t} style={{ fontFamily: "monospace", fontSize: "0.65rem", color: exp.color, background: exp.color + "15", border: `1px solid ${exp.color}28`, borderRadius: 6, padding: "3px 11px" }}>{t}</span>)}
-            </div>
-          </div>
+          ))}
+
         </div>
       </div>
     </section>
@@ -590,47 +971,175 @@ function Experience() {
 // ─── PROJECTS ─────────────────────────────────────────────────────────────────
 function Projects() {
   const projects = [
-    { num: "01", title: "Predictive Health Risk Detection via Wearables", sub: "Multi-sensor ML pipeline", desc: "Built early-detection models for physical & mental health risks using wearable sensor data. Implemented Random Forest, XGBoost, LSTM, and Logistic Regression with interpretable visualisations.", tags: ["Python", "XGBoost", "LSTM", "Random Forest", "Pandas"], color: "#00e5c3", emoji: "🧠", chart: "line", large: true },
-    { num: "02", title: "Melbourne Metro Commuter Analysis", sub: "Transport data exploration", desc: "Analysed Melbourne's metro network using DoT datasets (2021–2023) and meteorological data to uncover overcrowding patterns and passenger flow by time and day type.", tags: ["Python", "Pandas", "Tableau", "EDA"], color: "#ffb347", emoji: "🚇", chart: "bar", large: false },
+    {
+      title: "StepSafe: AI Scam Detection",
+      desc: "AI-powered system detecting employment scams using ML + Australian datasets. Enables real-time classification and trend analysis.",
+      skills: ["ML", "Data Viz", "SQL", "Python"],
+      github: "#",
+      size: "large"
+    },
+    {
+      title: "UV Monitoring Platform",
+      desc: "Real-time UV tracking + melanoma data insights with personalised recommendations.",
+      skills: ["Data Viz", "APIs", "Geo"],
+      github: "#",
+      size: "medium"
+    },
+    {
+      title: "GameSwapGo",
+      desc: "Figma-based mobile app for game exchange with strong UX focus.",
+      skills: ["UI/UX", "Figma"],
+      github: "#",
+      size: "medium"
+    },
+    {
+      title: "Wearable Health Prediction",
+      desc: "ML models (RF, XGBoost, LSTM) for early risk detection.",
+      skills: ["Python", "ML"],
+      github: "#",
+      size: "small"
+    },
+    {
+      title: "Melbourne Metro Analysis",
+      desc: "Explored commuter patterns using transport datasets.",
+      skills: ["R", "Tableau"],
+      github: "#",
+      size: "small"
+    },
+    {
+      title: "Video Steganography",
+      desc: "Secure data embedding using RSA + AES.",
+      skills: ["Cybersecurity", "Python"],
+      github: "#",
+      size: "small"
+    },
+    {
+      title: "IoT Water Quality",
+      desc: "Smart water monitoring with IoT sensors.",
+      skills: ["IoT", "Python"],
+      github: "#",
+      size: "small"
+    }
   ];
 
   return (
-    <section id="projects" style={{ background: "#0d1117", padding: "120px 0" }}>
-      <div style={{ width: "100%", margin: "0 auto", padding: "0 48px" }}>
-        <SectionHead tag="03 — Projects" title={<>Things I've <em style={{ fontFamily: "Georgia,serif", fontStyle: "italic", fontWeight: 400, color: "#00e5c3" }}>Built & Explored</em></>} />
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18 }}>
-          {projects.map(p => <ProjectCard key={p.num} p={p} />)}
+    <section id="projects" style={{ background: "#080b12", padding: "120px 0" }}>
+      <div style={{ padding: "0 48px", maxWidth: 1200, margin: "0 auto" }}>
+
+        <SectionHead
+          tag="04 — Projects"
+          title={
+            <>Things I've <em style={{ color: "#00e5c3" }}>Built & Explored</em></>
+          }
+        />
+
+        {/* 🔥 GRID */}
+        <div style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(3, 1fr)",
+          gap: 24,
+          marginTop: 60
+        }}>
+
+          {projects.map((p, i) => (
+            <div
+              key={i}
+              style={{
+                gridColumn: p.size === "large" ? "span 3" : p.size === "medium" ? "span 2" : "span 1",
+                background: "#141824",
+                borderRadius: 20,
+                padding: 24,
+                border: "1px solid rgba(255,255,255,0.06)",
+                transition: "all 0.35s ease",
+                position: "relative",
+                overflow: "hidden"
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.transform = "translateY(-6px)";
+                e.currentTarget.style.boxShadow = "0 10px 40px rgba(0,229,195,0.15)";
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.transform = "translateY(0)";
+                e.currentTarget.style.boxShadow = "none";
+              }}
+            >
+
+              {/* GitHub Icon */}
+              <a
+              href={p.github}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                position: "absolute",
+                top: 16,
+                right: 16,
+                opacity: 0.8
+              }}
+            >
+              <svg
+                width="20"
+                height="20"
+                fill="#e8eaf2"
+                viewBox="0 0 24 24"
+              >
+                <path d="M12 .5C5.65.5.5 5.65.5 12a11.5 11.5 0 008 10.95c.6.1.82-.26.82-.58v-2.03c-3.25.7-3.93-1.57-3.93-1.57-.53-1.35-1.3-1.7-1.3-1.7-1.06-.73.08-.72.08-.72 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.73 1.27 3.4.97.1-.75.4-1.27.72-1.56-2.6-.3-5.34-1.3-5.34-5.8 0-1.28.46-2.32 1.2-3.14-.12-.3-.52-1.5.1-3.12 0 0 .98-.32 3.2 1.2a11.1 11.1 0 015.8 0c2.2-1.52 3.18-1.2 3.18-1.2.62 1.62.22 2.82.1 3.12.75.82 1.2 1.86 1.2 3.14 0 4.52-2.75 5.5-5.37 5.8.42.36.8 1.1.8 2.22v3.3c0 .32.22.7.83.58A11.5 11.5 0 0023.5 12C23.5 5.65 18.35.5 12 .5z"/>
+              </svg>
+            </a>
+
+              {/* Title */}
+              <div style={{
+                fontWeight: 800,
+                fontSize: p.size === "large" ? "1.3rem" : "1rem",
+                color: "#e8eaf2",
+                marginBottom: 10
+              }}>
+                {p.title}
+              </div>
+
+              <div style={{
+                fontFamily: "monospace",
+                fontSize: "0.65rem",
+                color: "#6b7491",
+                marginBottom: 10
+              }}>
+                {p.date}
+              </div>
+
+              {/* Description */}
+              <p style={{
+                fontSize: "0.85rem",
+                color: "#8891aa",
+                lineHeight: 1.6,
+                marginBottom: 16
+              }}>
+                {p.desc}
+              </p>
+
+              {/* Skills */}
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                {p.skills.map(s => (
+                  <span
+                    key={s}
+                    style={{
+                      fontSize: "0.65rem",
+                      fontFamily: "monospace",
+                      color: "#00e5c3",
+                      border: "1px solid rgba(0,229,195,0.3)",
+                      padding: "4px 10px",
+                      borderRadius: 8
+                    }}
+                  >
+                    {s}
+                  </span>
+                ))}
+              </div>
+
+            </div>
+          ))}
+
         </div>
       </div>
     </section>
-  );
-}
-
-function ProjectCard({ p }) {
-  const [hov, setHov] = useState(false);
-  return (
-    <div onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
-      style={{ background: "#141824", border: `1px solid ${hov ? p.color + "45" : "rgba(255,255,255,0.06)"}`, borderRadius: 22, padding: p.large ? 38 : 30, position: "relative", overflow: "hidden", transition: "all 0.3s", transform: hov ? "translateY(-6px)" : "none", boxShadow: hov ? `0 20px 55px ${p.color}12` : "none", gridColumn: p.large ? "1 / -1" : "auto", display: "flex", flexDirection: p.large ? "row" : "column", gap: p.large ? 44 : 18, alignItems: "flex-start" }}>
-      <div style={{ position: "absolute", top: -70, right: -70, width: 240, height: 240, background: `radial-gradient(circle,${p.color}${hov ? "15" : "08"},transparent 70%)`, pointerEvents: "none", transition: "all 0.4s" }} />
-      <div style={{ flex: 1, position: "relative", zIndex: 1 }}>
-        <div style={{ display: "flex", gap: 10, alignItems: "center", marginBottom: 10 }}>
-          <span style={{ fontSize: "1.8rem" }}>{p.emoji}</span>
-          <span style={{ fontFamily: "monospace", fontSize: "0.62rem", color: "#3d4259", letterSpacing: "0.1em" }}>PROJECT {p.num}</span>
-        </div>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 14 }}>
-          {p.tags.slice(0, 4).map(t => <span key={t} style={{ fontFamily: "monospace", fontSize: "0.62rem", color: p.color, background: p.color + "15", border: `1px solid ${p.color}22`, borderRadius: 5, padding: "3px 9px" }}>{t}</span>)}
-        </div>
-        <h3 style={{ fontWeight: 800, fontSize: p.large ? "1.45rem" : "1.08rem", color: "#e8eaf2", letterSpacing: "-0.02em", marginBottom: 7, lineHeight: 1.25 }}>{p.title}</h3>
-        <div style={{ fontFamily: "monospace", fontSize: "0.68rem", color: p.color, marginBottom: 14 }}>{p.sub}</div>
-        <p style={{ fontSize: "0.87rem", lineHeight: 1.75, color: "#6b7491", maxWidth: p.large ? 440 : "unset" }}>{p.desc}</p>
-      </div>
-      <div style={{ minWidth: 250, position: "relative", zIndex: 1 }}>
-        <div style={{ background: "#0d1117", borderRadius: 12, padding: "16px 16px 12px", border: "1px solid rgba(255,255,255,0.05)" }}>
-          <div style={{ fontFamily: "monospace", fontSize: "0.58rem", color: "#3d4259", marginBottom: 10, textTransform: "uppercase", letterSpacing: "0.08em" }}>// {p.chart === "line" ? "model accuracy" : "commuter volume"}</div>
-          {p.chart === "line" ? <MiniLineChart color={p.color} /> : <MiniBarChart color={p.color} />}
-        </div>
-      </div>
-    </div>
   );
 }
 
@@ -642,7 +1151,7 @@ function Skills() {
   const shown = filter === "All" ? SKILLS : SKILLS.filter(s => s.cat === filter);
 
   return (
-    <section id="skills" ref={ref} style={{ background: "#080b12", padding: "120px 0" }}>
+    <section id="skills" ref={ref} style={{ background: "#0d1117", padding: "120px 0" }}>
       <div style={{ width: "100%", margin: "0 auto", padding: "0 48px" }}>
         <SectionHead tag="04 — Skills" title={<>Tools of <em style={{ fontFamily: "Georgia,serif", fontStyle: "italic", fontWeight: 400, color: "#00e5c3" }}>My Trade</em></>} />
         <div style={{ display: "flex", gap: 8, marginBottom: 40, flexWrap: "wrap" }}>
@@ -693,7 +1202,7 @@ function Extracurricular() {
   const [open, setOpen] = useState(0);
 
   return (
-    <section id="extras" ref={ref} style={{ background: "#0d1117", padding: "120px 0" }}>
+    <section id="extras" ref={ref} style={{ background: "#080b12", padding: "120px 0" }}>
       <div style={{ width: "100%", margin: "0 auto", padding: "0 48px" }}>
         <SectionHead tag="05 — Extracurricular" title={<>Beyond the <em style={{ fontFamily: "Georgia,serif", fontStyle: "italic", fontWeight: 400, color: "#00e5c3" }}>Terminal</em></>} />
 
@@ -867,6 +1376,7 @@ export default function App() {
       <Nav scrollY={scrollY} />
       <Hero />
       <About />
+      <Education />
       <Experience />
       <Projects />
       <Skills />
